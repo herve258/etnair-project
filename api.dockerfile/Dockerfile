@@ -1,21 +1,18 @@
-FROM node:18 AS base
-WORKDIR /app
+FROM node:22 AS base
+USER node
+WORKDIR /api
 EXPOSE 3000
+CMD [ "/bin/bash" ]
 
 FROM base AS dev
-COPY ./api-back/package*.json ./
+COPY package*.json ./
 RUN npm install
-USER node
-COPY  ./api-back ./
+COPY . .
+CMD [ "npm","run","dev" ]
 
-FROM base AS builder
+FROM dev AS build
 RUN npm run build
 
-FROM node:18-alpine AS prod
-WORKDIR /app
-COPY --from=builder /app/package*.json ./
-RUN npm install --production
-COPY --from=builder /app/dist ./dist/
-
-EXPOSE 3000
+FROM build AS prod
+RUN npm run prod
 CMD [ "node","dist/index.js" ]
