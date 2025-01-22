@@ -1,0 +1,9 @@
+services:
+  api:
+    build:
+      target: dev
+    environment:
+      - NODE_ENV=${NODE_ENV1}
+    volumes:
+      - ./api-back:/app
+    command: npm run dev

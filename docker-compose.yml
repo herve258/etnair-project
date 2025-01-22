@@ -1,0 +1,39 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api.dockerfile/Dockerfile
+    environment:
+      - NODE_ENV=${NODE_ENV1}
+    ports:
+      - "${PORTS_api}:${PORTS_api}"
+    networks:
+      - myNetwork
+    depends_on:
+      - postgres
+    command: npm dist/index.js
+  
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: etnair
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - myNetwork
+    ports:
+      - "${PORTS_db}:${PORTS_db}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+volumes:
+  postgres-data:
+networks:
+  myNetwork:
+    driver: bridge
